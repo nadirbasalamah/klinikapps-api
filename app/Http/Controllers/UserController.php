@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Nutrition_record;
 use App\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -20,90 +21,231 @@ class UserController extends Controller
             'data'    => $users
         ], 200);
     }
-    public function decrypt($string)
-	{
-		$output = false;
-		$encrypt_method = "AES-256-CBC";
-		$secret_key = 'This is my secret key';
-		$secret_iv = 'This is my secret iv';
-		$key = hash('sha256', $secret_key);
-		$iv = substr(hash('sha256', $secret_iv), 0, 16);
-		$output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
-		return $output;
-	}
-	/**
-	 * @function createPassword(passwd)
-	 * @param string kata sandi pengguna
-	 * @return melakukan enkripsi kata sandi pengguna
-	 */
-	public function createPassword($passwd) 
-	{
-		$output = false;
-		$encrypt_method = "AES-256-CBC";
-		$secret_key = 'This is my secret key';
-		$secret_iv = 'This is my secret iv'; 
-		$key = hash('sha256', $secret_key);
-		$iv = substr(hash('sha256', $secret_iv), 0, 16);
-		$output = openssl_encrypt($passwd, $encrypt_method, $key, 0, $iv);
-		$output = base64_encode($output);
-		return $output;
-    }
     /**
 	 * @function registerUser()
 	 * @return melakukan registrasi pengguna baru
 	 */
-	public function registerUser() {
-    //     $data = array(
-    //     'id' => 0,
-    //     'role' => 'user',
-    //     'fullname' => $this->input->post('fullname'),
-    //     'username' => $this->input->post('username'),
-    //     'password' => $this->createPassword($this->input->post('password')),
-    //     'birthdate' => $this->input->post('birthdate'),
-    //     'gender' => $this->input->post('gender'),
-    //     'age' => $this->input->post('age'),
-    //     'phone_number' => $this->input->post('phone_number'),
-    //     'email' => $this->input->post('email'),
-    //     'address' => $this->input->post('address'),
-    //     'id_number' => $this->input->post('id_number'),
-    //     'id_type' => $this->input->post('id_type'),
-    //     'profile_picture' => "default.png"
-    // );
-    // if(strpos($data['fullname'], 'Dr.') !== false) {
-    //     $data['role'] = 'doctor';
-    //     $result = $this->Users_api->registration($data);
-    // } else {
-    //     $result = $this->Users_api->registration($data);
-    // }
-	// 	echo json_encode($result);
+	public function registerUser(Request $request) {
+
+    $validator = Validator::make($request->all(), [
+        'fullname' => 'required|string|regex:/^[a-z .\-]+$/i',
+        'username' => 'required|string|regex:/^[a-z .\-]+$/i',
+        'password' => 'required|string|min:6',
+        'birthdate' => 'required',
+        'gender' => 'required|string',
+        'age' => 'required|integer',
+        'phone_number' => 'required|string|regex:/^[0-9 .\-]+$/i',
+        'email' => 'required|string', 
+        'address' => 'required|string',
+        'id_number' => 'required|string|regex:/^[0-9 .\-]+$/i',
+        'id_type' => 'required'
+    ]);
+    
+        $status = false;
+        $message = [];
+        $data = null;
+        $code = 400;
+        $role = 'user';
+
+        if ($validator->fails()) { 
+            $errors = $validator->errors();
+            $messages = [];
+            $fields = [];
+            $i = 0;
+            foreach ($errors->all() as $msg) {
+                array_push($messages,$msg);
+                $fields[$i] = explode(" ",$messages[$i]);
+                $message[$fields[$i][1]] = $messages[$i];
+                $i++;
+            }
+        }
+        else{
+            if(strpos($request->fullname, 'Dr.') !== false) {
+                $role = 'doctor';
+            }
+            $user = User::create([
+                'role' => $role,
+                'fullname' => $request->fullname,
+                'username' => $request->username,
+                'password' => Hash::make($request->password),
+                'birthdate' => $request->birthdate,
+                'gender' => $request->gender,
+                'age' => $request->age,
+                'phone_number' => $request->phone_number,
+                'email' => $request->email,
+                'address' => $request->address,
+                'id_number' => $request->id_number,
+                'id_type' => $request->id_type,
+                'profile_picture' => "default.png"
+            ]);
+            if($user){
+                $status = true;
+                $message['success'] = "register successfully";
+                $data = $user->toArray();
+                $code = 200;
+            }
+            else{
+                $message['username'] = 'register failed, username already exist';
+            }
+        }
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+            'data' => $data
+        ], $code);
     }
     /**
 	 * @function loginUser()
 	 * @return melakukan login pengguna
 	 */
-	public function loginUser() {
-		// $data = array(
-		// 'username' => $this->input->post('username'),
-		// 'password' => $this->createPassword($this->input->post('password'))
-		// );
-		// $result = $this->Users_api->login($data);
-		// echo json_encode($result);
+	public function loginUser(Request $request) {
+		$validator = Validator::make($request->all(), [
+            'username' => 'required', 
+            'password' => 'required', 
+        ]);
+        $status = false;
+        $message = [];
+        $data = null;
+        $code = 401;
+        $isUserFound = true;
+
+        if ($validator->fails()) { 
+            $errors = $validator->errors();            
+            $messages = [];
+            $fields = [];
+            $i = 0;
+            foreach ($errors->all() as $msg) {
+                array_push($messages,$msg);
+                $fields[$i] = explode(" ",$messages[$i]);
+                $message[$fields[$i][1]] = $messages[$i];
+                $i++;
+            }
+        } else {
+                try {
+                    $user = User::where('username', '=', $request->username)->firstOrFail();
+                } catch (\Throwable $th) {
+                    $isUserFound = false;
+                }
+                if ($isUserFound) {
+                    if (Hash::check($request->password, $user->password)) {
+                        $status = true;
+                        $message['success'] = 'Login successfully';
+                        $data = $user->toArray();
+                        $code = 200;
+                    } else {
+                        $message['password'] = "Login failed, invalid password";
+                    }
+                } else {
+                        $message['nim'] = "Login failed, invalid NIM";
+                }
+            }
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+            'data' => $data
+        ], $code);
     }
     /**
-		 * @function editProfile()
-		 * @return menyimpan perubahan data profil pengguna
-		 */
-	public function editProfile($id) {
-        // $data = array(
-        //     'id' => $id,
-        //     'username' => $this->input->post('username'),
-        //     'password' => $this->createPassword($this->input->post('password')),
-        //     'phone_number' => $this->input->post('phone_number'),
-        //     'email' => $this->input->post('email'),
-        //     'address' => $this->input->post('address')
-        // );
-		// $result = $this->Users_api->updateProfile($data);
-		// echo json_encode($result);
+     * @function editProfile(id)
+     * @return menyimpan perubahan data profil pengguna
+     */
+	public function editProfile(Request $request, $id) {
+        $message = [];
+        $data = [];
+        $code = 400;
+        $status = false;
+            $validator = Validator::make($request->all(), [
+                'username' => 'required|regex:/^[a-z .\-]+$/i',
+                'phone_number' => 'required|regex:/^[0-9 .\-]+$/i',
+                'email' => 'required',
+                'address' => 'required'
+            ]);
+            if ($validator->fails()) {
+                $errors = $validator->errors();
+                
+                $messages = [];
+                $fields = [];
+                $i = 0;
+
+                foreach ($errors->all() as $msg) {
+                    array_push($messages,$msg);
+                    $fields[$i] = explode(" ",$messages[$i]);
+                    $message[$fields[$i][1]] = $messages[$i];
+                    $i++;
+                }
+            } else {
+                $user = User::find($id);
+                if (!is_null($user)) {
+                    $user->username = $request->username;
+                    $user->phone_number = $request->phone_number;
+                    $user->email = $request->email;
+                    $user->address = $request->address;
+                    $user->save();
+                    
+                    $message['success'] = 'user updated!';
+                    $code = 200;
+                    $data = $user;
+                    $status = true;
+                } else {
+                    $message['error'] = "Error, user not found";
+                    $code = 404;
+                }
+            }
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+            'data' => $data
+        ], $code);
+    }
+    /**
+     * @function changePassword(id)
+     * @return menyimpan perubahan password pengguna
+     */
+	public function changePassword(Request $request, $id) {
+        $message = [];
+        $data = [];
+        $code = 400;
+        $status = false;
+            $validator = Validator::make($request->all(), [
+                'old_password' => 'required|min:6',
+                'new_password' => 'required|min:6'
+            ]);
+            if ($validator->fails()) {
+                $errors = $validator->errors();
+                
+                $messages = [];
+                $fields = [];
+                $i = 0;
+
+                foreach ($errors->all() as $msg) {
+                    array_push($messages,$msg);
+                    $fields[$i] = explode(" ",$messages[$i]);
+                    $message[$fields[$i][1]] = $messages[$i];
+                    $i++;
+                }
+            } else {
+                $user = User::find($id);
+                if (!is_null($user)) {
+                    if (Hash::check($request->old_password, $user->password)) {
+                        $user->password = $request->new_password;
+                        $user->save();
+                    } else {
+                        $message['password'] = "Login failed, invalid password";
+                    }
+                    $message['success'] = 'password updated!';
+                    $code = 200;
+                    $data = $user;
+                    $status = true;
+                } else {
+                    $message['error'] = "Error, user not found";
+                    $code = 404;
+                }
+            }
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+            'data' => $data
+        ], $code);
 	}
 	/**
 	 * @function getUserById(id)

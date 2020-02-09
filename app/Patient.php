@@ -13,7 +13,7 @@ class Patient extends Model
      * @var array
      */
     protected $fillable = [
-        'id_patient','rm_number','rmgizi_number','visitdate','referral','fullname','age','gender',
+        'rm_number','rmgizi_number','visitdate','referral','fullname','age','gender',
         'address','phone_number','email','birthdate','profile_picture','education','job','religion'
     ];
 }

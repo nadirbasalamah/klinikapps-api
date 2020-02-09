@@ -16,6 +16,7 @@ $router->get('/','UserController@index');
 $router->post('/registerUser','UserController@registerUser');
 $router->post('/loginUser','UserController@loginUser');
 $router->post('/editProfile/{id}','UserController@editProfile');
+$router->post('/changePassword/{id}','UserController@changePassword');
 $router->get('/user/{id}','UserController@getUserById');
 $router->get('/userNutRecord/{id}','UserController@getNutritionRecordById');
 

@@ -20,7 +20,7 @@ class Nutrition_record extends Model
      * @var array
      */
     protected $fillable = [
-        'id_record','id_patient','bb','tb','lila','imt','bbi','status','fat','visceral_fat','muscle',
+        'id_patient','bb','tb','lila','imt','bbi','status','fat','visceral_fat','muscle',
         'body_age','gda','gdp','gd2jpp','asam_urat','trigliserida','kolesterol','ldl','hdl','ureum',
         'kreatinin','sgot','sgpt','tensi','rr','suhu','lainnya','oedema','aktivitas','durasi_olahraga',
         'jenis_olahraga','diagnosa_dahulu','diagnosa_skrg','nafsu_makan','frekuensi_makan','alergi','makanan_kesukaan',

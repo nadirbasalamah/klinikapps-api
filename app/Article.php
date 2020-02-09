@@ -13,6 +13,6 @@ class Article extends Model
      * @var array
      */
     protected $fillable = [
-        'id','author','type','title','description','image','source'
+        'author','type','title','description','image','source'
     ];
 }
