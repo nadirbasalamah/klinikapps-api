@@ -227,7 +227,7 @@ class UserController extends Controller
                 $user = User::find($id);
                 if (!is_null($user)) {
                     if (Hash::check($request->old_password, $user->password)) {
-                        $user->password = $request->new_password;
+                        $user->password = Hash::make($request->new_password);
                         $user->save();
                     } else {
                         $message['password'] = "Login failed, invalid password";
