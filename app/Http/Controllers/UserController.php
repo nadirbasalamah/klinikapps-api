@@ -11,11 +11,12 @@ class UserController extends Controller
 {
     public function index()
     {
+        //test only!
         $users = User::all();
 
         return response()->json([
             'success' => true,
-            'message' =>'List Semua User',
+            'message' =>'Data found.',
             'data'    => $users
         ], 200);
     }

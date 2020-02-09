@@ -4,30 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Patient;
 use App\Nutrition_record;
+use App\Article;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class DoctorController extends Controller
 {
-    /**
-	 * @function getAllPatients()
-	 * @return mendapatkan data seluruh pasien
-	 */
-	public function getAllPatients()
-	{
-		// $data = $this->Patients_api->getAllPatients();
-		// echo json_encode($data);
-	}
-	/**
-	 * @function viewPatient(id)
-	 * @param id pasien
-	 * @return mendapatkan data pasien berdasarkan id pasien
-	 */
-	public function getPatientById($id)
-	{
-		// $data = $this->Patients_api->getPatientById($id);
-		// echo json_encode($data);
-	}
 	/**
 	 * @function checkImt(imt)
 	 * @param double imt pasien
@@ -44,6 +26,32 @@ class DoctorController extends Controller
 		} else {
 			return "obese";
 		}
+	}
+	/**
+	 * @function getNutritionRecordById(id)
+	 * @param id data gizi
+	 * @return mendapatkan data gizi berdasarkan id data gizi
+	 */
+	public function getNutritionRecordById($id)
+    {
+        $isDataFound = true;
+        try {
+            $data = Nutrition_record::where('id_record','=',$id)->firstOrFail();
+        } catch (\Throwable $th) {
+            $isDataFound = false;
+        }
+        if($isDataFound) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Nutrition record found.',
+                'data' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Nutrition record not found.'
+            ], 404);
+        }
 	}
 	/**
 	 * @function updateNutritionRecord(id)
@@ -143,31 +151,25 @@ class DoctorController extends Controller
 		// echo json_encode($result);
 	}
 	/**
-	 * @function getPatientByName(fullname)
-	 * @return menampilkan daftar pasien berdasarkan nama pasien yang dicari
-	 */
-	public function getPatientByName($fullname)
-	{
-		// $data = $this->Patients_api->getPatientByName($fullname);
-		// echo json_encode($data);
-	}
-	/**
-	 * @function getNutritionRecordById(id)
-	 * @return menampilkan data rekaman gizi berdasarkan id pasien
-	 */
-	public function getNutritionRecordById($id)
-    {
-        // $data = $this->Nutrition_records_api->getNutritionRecordById($id);
-        // echo json_encode($data);
-	}
-	/**
 	 * @function getAllArticles()
 	 * @return menampilkan seluruh data artikel gizi
 	 */
 	public function getAllArticles()
 	{
-		// $data = $this->Articles_api->getAllArticles();
-		// echo json_encode($data);
+		$articles = Article::all();
+
+		if (count($articles) === 0) {
+			return response()->json([
+				'status' => false,
+				'message' =>'Article data not found.'
+			], 404);
+		} else {
+			return response()->json([
+				'status' => true,
+				'message' =>'Article data found.',
+				'data'    => $articles
+			], 200);
+		}
 	}
 	/**
 	 * @function getAllGuides()
@@ -175,8 +177,23 @@ class DoctorController extends Controller
 	 */
 	public function getAllGuides()
 	{
-		// $data = $this->Articles_api->getAllGuides();
-		// echo json_encode($data);
+		$data = Article::select('*')
+		->where('type','=',"guide")
+		->orderBy('id', 'DESC')
+		->get();
+
+        if(count($data) === 0) {
+			return response()->json([
+				'status' => false,
+                'message' => 'Article data not found.'
+            ], 404);
+        } else {
+			return response()->json([
+				'status' => true,
+				'message' => 'Article data found.',
+				'data' => $data
+			], 200);
+        }
 	}
 	/**
 	 * @function getArticleById(id)
@@ -184,8 +201,24 @@ class DoctorController extends Controller
 	 */
 	public function getArticleById($id)
 	{
-		// $data = $this->Articles_api->getArticleById($id);
-		// echo json_encode($data);
+		$isDataFound = true;
+        try {
+            $data = Article::where('id','=',$id)->firstOrFail();
+        } catch (\Throwable $th) {
+            $isDataFound = false;
+        }
+        if($isDataFound) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Article data found.',
+                'data' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Article data not found.'
+            ], 404);
+        }
 	}
 	/**
 	 * @function addArticle()

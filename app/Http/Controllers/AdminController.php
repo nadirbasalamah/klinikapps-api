@@ -16,11 +16,18 @@ class AdminController extends Controller
 	{
 		$patients = Patient::all();
 
-        return response()->json([
-            'success' => true,
-            'message' =>'List Semua User',
-            'data'    => $patients
-        ], 200);
+		if (count($patients) === 0) {
+			return response()->json([
+				'status' => false,
+				'message' =>'Data not found.'
+			], 404);
+		} else {
+			return response()->json([
+				'status' => true,
+				'message' =>'Data found.',
+				'data'    => $patients
+			], 200);
+		}
 	}
 	/**
 	 * @function getPatientById(id)
@@ -29,8 +36,24 @@ class AdminController extends Controller
 	 */
 	public function getPatientById($id)
 	{
-		// $data = $this->Patients_api->getPatientById($id);
-		// echo json_encode($data);
+		$isDataFound = true;
+        try {
+            $data = Patient::where('id_patient','=',$id)->firstOrFail();
+        } catch (\Throwable $th) {
+            $isDataFound = false;
+        }
+        if($isDataFound) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Patient data found.',
+                'data' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Patient data not found.'
+            ], 404);
+        }
 	}
 	/**
 	 * @function deletePatient(id)
@@ -94,7 +117,22 @@ class AdminController extends Controller
 	 */
 	public function getPatientByName($fullname)
 	{
-		// $data = $this->Patients_api->getPatientByName($fullname);
-		// echo json_encode($data);
+		$data = Patient::select('*')
+		->where('fullname','LIKE',"%".$fullname."%")
+		->orderBy('fullname', 'DESC')
+		->get();
+
+        if(count($data) === 0) {
+			return response()->json([
+				'status' => false,
+                'message' => 'Patient data not found.'
+            ], 404);
+        } else {
+			return response()->json([
+				'status' => true,
+				'message' => 'Patient data found.',
+				'data' => $data
+			], 200);
+        }
 	}
 }
