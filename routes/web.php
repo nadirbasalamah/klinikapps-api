@@ -24,8 +24,8 @@ $router->get('/userNutRecord/{id}','UserController@getNutritionRecordById');
 $router->get('/patients','AdminController@getAllPatients');
 $router->get('/patient/{id}','AdminController@getPatientById');
 // $router->post('/deletePatient/{id}','AdminController@deletePatient');
-// $router->post('/editPatient/{id}','AdminController@editPatient');
-// $router->post('/addPatient','AdminController@addPatient');
+$router->post('/editPatient/{id}','AdminController@editPatient');
+$router->post('/addPatient','AdminController@addPatient');
 $router->get('/getPatient/{fullname}','AdminController@getPatientByName');
 
 // //For Doctor

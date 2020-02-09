@@ -70,46 +70,135 @@ class AdminController extends Controller
 	 * @param id pasien
 	 * @return menyimpan perubahan data diri pasien
 	 */
-	public function editPatient($id)
+	public function editPatient(Request $request, $id)
 	{
-		// $data = array(
-		// 	'id' => $id,
-		// 	'fullname' => $this->input->post('fullname'),
-		// 	'address' => $this->input->post('address'),
-		// 	'phone_number' => $this->input->post('phone_number'),
-		// 	'email' => $this->input->post('email'),
-		// 	'education' => $this->input->post('education'),
-		// 	'job' => $this->input->post('job'),
-		// 	'religion' => $this->input->post('religion')
-		// );
-		// $result = $this->Patients_api->updatePatient($data);
-		// echo json_encode($result);
+		$validator = Validator::make($request->all(), [
+			'address' => 'required', 
+			'phone_number' => 'required|string|regex:/^[0-9 .\-]+$/i',
+			'email' => 'required',
+			'education' => 'required',
+			'job' => 'required',
+			'religion' => 'required'
+		]);
+		
+			$status = false;
+			$message = [];
+			$data = null;
+			$code = 400;
+	
+			if ($validator->fails()) { 
+				$errors = $validator->errors();
+				$messages = [];
+				$fields = [];
+				$i = 0;
+				foreach ($errors->all() as $msg) {
+					array_push($messages,$msg);
+					$fields[$i] = explode(" ",$messages[$i]);
+					$message[$fields[$i][1]] = $messages[$i];
+					$i++;
+				}
+			}
+			else{
+				$patient = Patient::find($id);
+                if (!is_null($patient)) {
+                    $patient->address = $request->address;
+                    $patient->phone_number = $request->phone_number;
+					$patient->email = $request->email;
+					$patient->education = $request->education;
+					$patient->job = $request->job;
+					$patient->religion = $request->religion;
+
+                    $patient->save();
+                    
+                    $message['success'] = 'patient data updated!';
+                    $code = 200;
+					$data = $patient;
+                    $status = true;
+                } else {
+                    $message['error'] = "Error, patient not found";
+                    $code = 404;
+                }
+			}
+			return response()->json([
+				'status' => $status,
+				'message' => $message,
+				'data' => $data
+			], $code);
+
 	}
 	/**
 	 * @function addPatient()
 	 * @return menambahkan data pasien baru
 	 */
-	public function addPatient()
+	public function addPatient(Request $request)
 	{
-		// $data = array(
-		// 	'id_patient' => 0,
-		// 	'rm_number' => $this->input->post('rm_number'),
-		// 	'rmgizi_number' => $this->input->post('rmgizi_number'),
-		// 	'visitdate' => $this->input->post('visitdate'),
-		// 	'referral' => $this->input->post('referral'),
-		// 	'fullname' => $this->input->post('fullname'),
-		// 	'age' => $this->input->post('age'),
-		// 	'gender' => $this->input->post('gender'),
-		// 	'address' => $this->input->post('address'),
-		// 	'phone_number' => $this->input->post('phone_number'),
-		// 	'email' => $this->input->post('email'),
-		// 	'birthdate' => $this->input->post('birthdate'),
-		// 	'education' => $this->input->post('education'),
-		// 	'job' => $this->input->post('job'),
-		// 	'religion' => $this->input->post('religion')
-		// );
-		// $result = $this->Patients_api->addPatient($data);
-		// echo json_encode($result);
+		$validator = Validator::make($request->all(), [
+			'rm_number' => 'required',
+			'rmgizi_number' => 'required',
+			'visitdate' => 'required',
+			'referral' => 'required',
+			'fullname' => 'required|string|regex:/^[a-z .\-]+$/i',
+			'age' => 'required|integer',
+			'gender' => 'required',
+			'address' => 'required', 
+			'phone_number' => 'required|string|regex:/^[0-9 .\-]+$/i',
+			'email' => 'required',
+			'birthdate' => 'required',
+			'education' => 'required',
+			'job' => 'required',
+			'religion' => 'required'
+		]);
+		
+			$status = false;
+			$message = [];
+			$data = null;
+			$code = 400;
+	
+			if ($validator->fails()) { 
+				$errors = $validator->errors();
+				$messages = [];
+				$fields = [];
+				$i = 0;
+				foreach ($errors->all() as $msg) {
+					array_push($messages,$msg);
+					$fields[$i] = explode(" ",$messages[$i]);
+					$message[$fields[$i][1]] = $messages[$i];
+					$i++;
+				}
+			}
+			else{
+				$patient = Patient::create([
+						'rm_number' => $request->rm_number,
+						'rmgizi_number' => $request->rmgizi_number,
+						'visitdate' => $request->visitdate,
+						'referral' => $request->referral,
+						'fullname' => $request->fullname,
+						'age' => $request->age,
+						'gender' => $request->gender,
+						'address' => $request->address,
+						'phone_number' => $request->phone_number,
+						'email' => $request->email,
+						'birthdate' => $request->birthdate,
+						'profile_picture' => 'default.png', //TODO: will be replaced with uploaded pict
+						'education' => $request->education,
+						'job' => $request->job,
+						'religion' => $request->religion
+				]);
+				if($patient){
+					$status = true;
+					$message['success'] = "patient added successfully";
+					$data = $patient->toArray();
+					$code = 200;
+				}
+				else{
+					$message['error'] = 'patient failed to add';
+				}
+			}
+			return response()->json([
+				'status' => $status,
+				'message' => $message,
+				'data' => $data
+			], $code);
 	}
 	/**
 	 * @function getPatientByName(fullname)
