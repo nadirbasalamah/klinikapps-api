@@ -38,7 +38,7 @@ class AdminController extends Controller
 	{
 		$isDataFound = true;
         try {
-            $data = Patient::where('id_patient','=',$id)->firstOrFail();
+            $data = Patient::where('id','=',$id)->firstOrFail();
         } catch (\Throwable $th) {
             $isDataFound = false;
         }
@@ -60,10 +60,26 @@ class AdminController extends Controller
 	 * @param id pasien
 	 * @return menghapus data pasien tertentu
 	 */
-	public function deletePatient($id)
+	public function deletePatient(Request $request, $id)
 	{
-		// $result = $this->Patients_api->deletePatient($id);
-		// echo json_encode($result);
+		$isDataFound = true;
+        try {
+            $data = Patient::where('id','=',$id)->firstOrFail();
+        } catch (\Throwable $th) {
+            $isDataFound = false;
+        }
+        if($isDataFound) {
+			$data->delete();
+            return response()->json([
+                'status' => true,
+                'message' => 'Patient data deleted successfully.',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Patient data not found.'
+            ], 404);
+        }
 	}
 	/**
 	 * @function editPatient(id)

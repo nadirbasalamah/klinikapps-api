@@ -23,19 +23,19 @@ $router->get('/userNutRecord/{id}','UserController@getNutritionRecordById');
 // //For Admin
 $router->get('/patients','AdminController@getAllPatients');
 $router->get('/patient/{id}','AdminController@getPatientById');
-// $router->post('/deletePatient/{id}','AdminController@deletePatient');
+$router->post('/deletePatient/{id}','AdminController@deletePatient');
 $router->post('/editPatient/{id}','AdminController@editPatient');
 $router->post('/addPatient','AdminController@addPatient');
 $router->get('/getPatient/{fullname}','AdminController@getPatientByName');
 
 // //For Doctor
-// $router->post('/updateNutRecord/{id}','DoctorController@updateNutritionRecord');
+$router->post('/updateNutRecord/{id}','DoctorController@updateNutritionRecord');
 $router->get('/nutRecord/{id}','DoctorController@getNutritionRecordById');
 
 // //For Articles
 $router->get('/articles','DoctorController@getAllArticles');
 $router->get('/guides','DoctorController@getAllGuides');
 $router->get('/article/{id}','DoctorController@getArticleById');
-// $router->post('/addArticle','DoctorController@addArticle');
-// $router->post('/deleteArticle/{id}','DoctorController@deleteArticle');
-// $router->post('/updateArticle/{id}','DoctorController@updateArticle');
+$router->post('/addArticle','DoctorController@addArticle');
+$router->post('/deleteArticle/{id}','DoctorController@deleteArticle');
+$router->post('/editArticle/{id}','DoctorController@editArticle');
