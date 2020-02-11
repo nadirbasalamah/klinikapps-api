@@ -51,7 +51,7 @@ class DoctorController extends Controller
     {
         $isDataFound = true;
         try {
-            $data = Nutrition_record::where('id','=',$id)->firstOrFail();
+            $data = Nutrition_record::where('id_patient','=',$id)->firstOrFail();
         } catch (\Throwable $th) {
             $isDataFound = false;
         }
@@ -73,7 +73,7 @@ class DoctorController extends Controller
 	 * @param id pasien
 	 * @return melakukan perubahan data gizi pada pasien tertentu
 	 */
-	public function updateNutritionRecord(Request $request, $id) //TODO: test this function!
+	public function updateNutritionRecord(Request $request, $id)
 	{
 		$status = false;
 		$message = [];
@@ -82,31 +82,31 @@ class DoctorController extends Controller
 
 		if($this->checkPatient($id)) {
 			$validator = Validator::make($request->all(), [
-				'bb' => 'required|numeric',
-				'tb' => 'required|numeric',
-				'lila' => 'required|numeric',
-				'bbi' => 'required|numeric',
-				'fat' => 'required|numeric',
-				'visceral_fat' => 'required|numeric',
-				'muscle' => 'required|numeric',
-				'body_age' => 'required|numeric',
-				'gda' => 'required|numeric', 
-				'gdp' => 'required|numeric', 
-				'gd2jpp' => 'required|numeric', 
-				'asam_urat' => 'required|numeric', 
-				'trigliserida' => 'required|numeric', 
-				'kolesterol' => 'required|numeric', 
-				'ldl' => 'required|numeric', 
-				'hdl' => 'required|numeric', 
-				'ureum' => 'required|numeric', 
-				'kreatinin' => 'required|numeric', 
-				'sgot' => 'required|numeric', 
-				'sgpt' => 'required|numeric', 
-				'tensi' => 'required|numeric', 
-				'rr' => 'required|numeric', 
-				'suhu' => 'required|numeric',
+				'bb' => 'required',
+				'tb' => 'required',
+				'lila' => 'required',
+				'bbi' => 'required',
+				'fat' => 'required',
+				'visceral_fat' => 'required',
+				'muscle' => 'required',
+				'body_age' => 'required',
+				'gda' => 'required', 
+				'gdp' => 'required', 
+				'gd2jpp' => 'required', 
+				'asam_urat' => 'required', 
+				'trigliserida' => 'required', 
+				'kolesterol' => 'required', 
+				'ldl' => 'required', 
+				'hdl' => 'required', 
+				'ureum' => 'required', 
+				'kreatinin' => 'required', 
+				'sgot' => 'required', 
+				'sgpt' => 'required', 
+				'tensi' => 'required', 
+				'rr' => 'required', 
+				'suhu' => 'required',
 				'lainnya' => 'required', 
-				'oedema' => 'required|numeric', 
+				'oedema' => 'required', 
 				'aktivitas' => 'required', 
 				'durasi_olahraga' => 'required', 
 				'jenis_olahraga' => 'required', 
@@ -128,21 +128,21 @@ class DoctorController extends Controller
 				'dietary_lainnya' => 'required', 
 				'lain_lain' => 'required', 
 				'diagnosa' => 'required',
-				'angka_tb_bb' => 'required|numeric',
+				'angka_tb_bb' => 'required',
 				'keterangan_tb_bb' => 'required',
-				'angka_bb_u' => 'required|numeric',
+				'angka_bb_u' => 'required',
 				'keterangan_bb_u' => 'required',
-				'angka_tb_u' => 'required|numeric',
+				'angka_tb_u' => 'required',
 				'keterangan_tb_u' => 'required',
-				'angka_imt_u' => 'required|numeric',
+				'angka_imt_u' => 'required',
 				'keterangan_imt_u' => 'required',
-				'angka_hc_u' => 'required|numeric',
+				'angka_hc_u' => 'required',
 				'keterangan_hc_u' => 'required', 
-				'energi' => 'required|numeric', 
+				'energi' => 'required', 
 				'keterangan_inter' => 'required',
-				'persen_karbohidrat' => 'required|numeric',
-				'persen_protein' => 'required|numeric', 
-				'persen_lemak' => 'required|numeric',
+				'persen_karbohidrat' => 'required',
+				'persen_protein' => 'required', 
+				'persen_lemak' => 'required',
 				'mon_date' => 'required',
 				'result' => 'required'
 			]);
@@ -161,98 +161,187 @@ class DoctorController extends Controller
 			else{
 				$bb = $request->bb;
 				$tb = $request->tb;
-				$imt = $bb / pow(($tb / 100),2);
-				$status = $this->checkImt($imt);
+				$imt = floatval($bb / pow(($tb / 100),2));
+				$imt_status = $this->checkImt($imt);
 				
 				$energi = $request->energi;
 				$persen_karbohidrat = $request->persen_karbohidrat;
-				$gram_karbohidrat = ($persen_karbohidrat / 100) * $energi / 4;
+				$gramKarbo = ($persen_karbohidrat / 100) * $energi / 4;
+				$gram_karbohidrat = floatval($gramKarbo);
 
 				$persen_protein = $request->persen_protein;
-				$gram_protein = ($persen_protein / 100) * $energi / 4;
+				$gramProtein = ($persen_protein / 100) * $energi / 4;
+				$gram_protein = floatval($gramProtein);
 				
 				$persen_lemak = $request->persen_lemak;
-				$gram_lemak = ($persen_lemak / 100) * $energi / 9;
+				$gramLemak = ($persen_lemak / 100) * $energi / 9;
+				$gram_lemak = floatval($gramLemak);
 
-				$nutrition_record = Nutrition_record::create([
-					'id_patient' => $id,
-					'bb' => $bb,
-					'tb' => $tb,
-					'lila' => $request->lila,
-					'imt' => $imt,
-					'bbi' => $request->bbi,
-					'status' => $status,
-					'fat' => $request->fat,
-					'visceral_fat' => $request->visceral_fat,
-					'muscle' => $request->muscle,
-					'body_age' => $request->body_age,
-					'gda' => $request->gda, 
-					'gdp' => $request->gdp, 
-					'gd2jpp' => $request->gd2jpp, 
-					'asam_urat' => $request->asam_urat, 
-					'trigliserida' => $request->trigliserida, 
-					'kolesterol' => $request->kolesterol, 
-					'ldl' => $request->ldl, 
-					'hdl' => $request->hdl, 
-					'ureum' => $request->ureum, 
-					'kreatinin' => $request->kreatinin, 
-					'sgot' => $request->sgot, 
-					'sgpt' => $request->sgpt, 
-					'tensi' => $request->tensi, 
-					'rr' => $request->rr, 
-					'suhu' => $request->suhu,
-					'lainnya' => $request->lainnya, 
-					'oedema' => $request->oedema, 
-					'aktivitas' => $request->aktivitas, 
-					'durasi_olahraga' => $request->durasi_olahraga, 
-					'jenis_olahraga' => $request->jenis_olahraga, 
-					'diagnosa_dahulu' => $request->diagnosa_dahulu, 
-					'diagnosa_skrg' => $request->diagnosa_skrg, 
-					'nafsu_makan' => $request->nafsu_makan, 
-					'frekuensi_makan' => $request->frekuensi_makan, 
-					'alergi' => $request->alergi, 
-					'makanan_kesukaan' => $request->makanan_kesukaan, 
-					'dietary_nasi' => $request->dietary_nasi , 
-					'dietary_lauk_hewani' => $request->dietary_lauk_hewani, 
-					'dietary_lauk_nabati' => $request->dietary_lauk_nabati, 
-					'dietary_sayur' => $request->dietary_sayur, 
-					'dietary_sumber_minyak' => $request->dietary_sumber_minyak, 
-					'dietary_minuman' => $request->dietary_minuman, 
-					'dietary_softdrink' => $request->dietary_softdrink, 
-					'dietary_jus' => $request->dietary_jus, 
-					'dietary_suplemen' => $request->dietary_suplemen, 
-					'dietary_lainnya' => $request->dietary_lainnya, 
-					'lain_lain' => $request->lain_lain, 
-					'diagnosa' => $request->diagnosa,
-					'angka_tb_bb' => $request->angka_tb_bb,
-					'keterangan_tb_bb' => $request->keterangan_tb_bb,
-					'angka_bb_u' => $request->angka_bb_u,
-					'keterangan_bb_u' => $request->keterangan_bb_u,
-					'angka_tb_u' => $request->angka_tb_u,
-					'keterangan_tb_u' => $request->keterangan_tb_u,
-					'angka_imt_u' => $request->angka_imt_u,
-					'keterangan_imt_u' => $request->keterangan_imt_u,
-					'angka_hc_u' => $request->angka_hc_u,
-					'keterangan_hc_u' => $request->keterangan_hc_u, 
-					'energi' => $energi, 
-					'keterangan_inter' => $request->keterangan_inter,
-					'persen_karbohidrat' => $persen_karbohidrat,
-					'gram_karbohidrat' => $gram_karbohidrat, 
-					'persen_protein' => $persen_protein, 
-					'gram_protein' => $gram_protein, 
-					'persen_lemak' => $persen_lemak,
-					'gram_lemak' => $gram_lemak,
-					'mon_date' => $request->mon_date,
-					'result' => $request->result
-				]);
-				if($nutrition_record){
+				$isDataFound = true;
+				try {
+					$nutRecord = Nutrition_record::where('id_patient','=',$id)->firstOrFail();
+				} catch (\Throwable $th) {
+					$isDataFound = false;
+				}
+
+				if($isDataFound) {
+					$nutRecord->bb = $bb;
+					$nutRecord->tb = $tb;
+					$nutRecord->lila = $request->lila;
+					$nutRecord->imt = $imt;
+					$nutRecord->bbi = $request->bbi;
+					$nutRecord->status = $imt_status;
+					$nutRecord->fat = $request->fat;
+					$nutRecord->visceral_fat = $request->visceral_fat;
+					$nutRecord->muscle = $request->muscle;
+					$nutRecord->body_age = $request->body_age;
+					$nutRecord->gda = $request->gda; 
+					$nutRecord->gdp = $request->gdp; 
+					$nutRecord->gd2jpp = $request->gd2jpp; 
+					$nutRecord->asam_urat = $request->asam_urat; 
+					$nutRecord->trigliserida = $request->trigliserida; 
+					$nutRecord->kolesterol = $request->kolesterol; 
+					$nutRecord->ldl = $request->ldl; 
+					$nutRecord->hdl = $request->hdl; 
+					$nutRecord->ureum = $request->ureum; 
+					$nutRecord->kreatinin = $request->kreatinin; 
+					$nutRecord->sgot = $request->sgot; 
+					$nutRecord->sgpt = $request->sgpt; 
+					$nutRecord->tensi = $request->tensi; 
+					$nutRecord->rr = $request->rr; 
+					$nutRecord->suhu = $request->suhu;
+					$nutRecord->lainnya = $request->lainnya; 
+					$nutRecord->oedema = $request->oedema; 
+					$nutRecord->aktivitas = $request->aktivitas; 
+					$nutRecord->durasi_olahraga = $request->durasi_olahraga; 
+					$nutRecord->jenis_olahraga = $request->jenis_olahraga; 
+					$nutRecord->diagnosa_dahulu = $request->diagnosa_dahulu; 
+					$nutRecord->diagnosa_skrg = $request->diagnosa_skrg; 
+					$nutRecord->nafsu_makan = $request->nafsu_makan; 
+					$nutRecord->frekuensi_makan = $request->frekuensi_makan; 
+					$nutRecord->alergi = $request->alergi; 
+					$nutRecord->makanan_kesukaan = $request->makanan_kesukaan; 
+					$nutRecord->dietary_nasi = $request->dietary_nasi ; 
+					$nutRecord->dietary_lauk_hewani = $request->dietary_lauk_hewani; 
+					$nutRecord->dietary_lauk_nabati = $request->dietary_lauk_nabati; 
+					$nutRecord->dietary_sayur = $request->dietary_sayur; 
+					$nutRecord->dietary_sumber_minyak = $request->dietary_sumber_minyak; 
+					$nutRecord->dietary_minuman = $request->dietary_minuman; 
+					$nutRecord->dietary_softdrink = $request->dietary_softdrink; 
+					$nutRecord->dietary_jus = $request->dietary_jus; 
+					$nutRecord->dietary_suplemen = $request->dietary_suplemen; 
+					$nutRecord->dietary_lainnya = $request->dietary_lainnya; 
+					$nutRecord->lain_lain = $request->lain_lain; 
+					$nutRecord->diagnosa = $request->diagnosa;
+					$nutRecord->angka_tb_bb = $request->angka_tb_bb;
+					$nutRecord->keterangan_tb_bb = $request->keterangan_tb_bb;
+					$nutRecord->angka_bb_u = $request->angka_bb_u;
+					$nutRecord->keterangan_bb_u = $request->keterangan_bb_u;
+					$nutRecord->angka_tb_u = $request->angka_tb_u;
+					$nutRecord->keterangan_tb_u = $request->keterangan_tb_u;
+					$nutRecord->angka_imt_u = $request->angka_imt_u;
+					$nutRecord->keterangan_imt_u = $request->keterangan_imt_u;
+					$nutRecord->angka_hc_u = $request->angka_hc_u;
+					$nutRecord->keterangan_hc_u = $request->keterangan_hc_u; 
+					$nutRecord->energi = $energi; 
+					$nutRecord->keterangan_inter = $request->keterangan_inter;
+					$nutRecord->persen_karbohidrat = $persen_karbohidrat;
+					$nutRecord->gram_karbohidrat = $gram_karbohidrat; 
+					$nutRecord->persen_protein = $persen_protein; 
+					$nutRecord->gram_protein = $gram_protein; 
+					$nutRecord->persen_lemak = $persen_lemak;
+					$nutRecord->gram_lemak = $gram_lemak;
+					$nutRecord->mon_date = $request->mon_date;
+					$nutRecord->result = $request->result;
+
+					$nutRecord->save();
+
 					$status = true;
 					$message['success'] = "nutrition record updated successfully";
-					$data = $nutrition_record->toArray();
+					$data = $nutRecord->toArray();
 					$code = 200;
-				}
-				else{
-					$message['error'] = 'nutrition record failed to update.';
+
+				} else {
+					$nutrition_record = Nutrition_record::create([
+						'id_patient' => $id,
+						'bb' => $bb,
+						'tb' => $tb,
+						'lila' => $request->lila,
+						'imt' => $imt,
+						'bbi' => $request->bbi,
+						'status' => $imt_status,
+						'fat' => $request->fat,
+						'visceral_fat' => $request->visceral_fat,
+						'muscle' => $request->muscle,
+						'body_age' => $request->body_age,
+						'gda' => $request->gda, 
+						'gdp' => $request->gdp, 
+						'gd2jpp' => $request->gd2jpp, 
+						'asam_urat' => $request->asam_urat, 
+						'trigliserida' => $request->trigliserida, 
+						'kolesterol' => $request->kolesterol, 
+						'ldl' => $request->ldl, 
+						'hdl' => $request->hdl, 
+						'ureum' => $request->ureum, 
+						'kreatinin' => $request->kreatinin, 
+						'sgot' => $request->sgot, 
+						'sgpt' => $request->sgpt, 
+						'tensi' => $request->tensi, 
+						'rr' => $request->rr, 
+						'suhu' => $request->suhu,
+						'lainnya' => $request->lainnya, 
+						'oedema' => $request->oedema, 
+						'aktivitas' => $request->aktivitas, 
+						'durasi_olahraga' => $request->durasi_olahraga, 
+						'jenis_olahraga' => $request->jenis_olahraga, 
+						'diagnosa_dahulu' => $request->diagnosa_dahulu, 
+						'diagnosa_skrg' => $request->diagnosa_skrg, 
+						'nafsu_makan' => $request->nafsu_makan, 
+						'frekuensi_makan' => $request->frekuensi_makan, 
+						'alergi' => $request->alergi, 
+						'makanan_kesukaan' => $request->makanan_kesukaan, 
+						'dietary_nasi' => $request->dietary_nasi , 
+						'dietary_lauk_hewani' => $request->dietary_lauk_hewani, 
+						'dietary_lauk_nabati' => $request->dietary_lauk_nabati, 
+						'dietary_sayur' => $request->dietary_sayur, 
+						'dietary_sumber_minyak' => $request->dietary_sumber_minyak, 
+						'dietary_minuman' => $request->dietary_minuman, 
+						'dietary_softdrink' => $request->dietary_softdrink, 
+						'dietary_jus' => $request->dietary_jus, 
+						'dietary_suplemen' => $request->dietary_suplemen, 
+						'dietary_lainnya' => $request->dietary_lainnya, 
+						'lain_lain' => $request->lain_lain, 
+						'diagnosa' => $request->diagnosa,
+						'angka_tb_bb' => $request->angka_tb_bb,
+						'keterangan_tb_bb' => $request->keterangan_tb_bb,
+						'angka_bb_u' => $request->angka_bb_u,
+						'keterangan_bb_u' => $request->keterangan_bb_u,
+						'angka_tb_u' => $request->angka_tb_u,
+						'keterangan_tb_u' => $request->keterangan_tb_u,
+						'angka_imt_u' => $request->angka_imt_u,
+						'keterangan_imt_u' => $request->keterangan_imt_u,
+						'angka_hc_u' => $request->angka_hc_u,
+						'keterangan_hc_u' => $request->keterangan_hc_u, 
+						'energi' => $energi, 
+						'keterangan_inter' => $request->keterangan_inter,
+						'persen_karbohidrat' => $persen_karbohidrat,
+						'gram_karbohidrat' => $gram_karbohidrat, 
+						'persen_protein' => $persen_protein, 
+						'gram_protein' => $gram_protein, 
+						'persen_lemak' => $persen_lemak,
+						'gram_lemak' => $gram_lemak,
+						'mon_date' => $request->mon_date,
+						'result' => $request->result
+					]);
+					if($nutrition_record){
+						$status = true;
+						$message['success'] = "nutrition record added successfully";
+						$data = $nutrition_record->toArray();
+						$code = 200;
+					}
+					else{
+						$message['error'] = 'nutrition record failed to add.';
+					}	
 				}
 			}
 		} else {
