@@ -2,7 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Nutrition_record;
+use App\Antropometry;
+use App\Biochemistry;
+use App\Clinic;
+use App\Dietary;
+use App\Diagnose;
+use App\Interenvention;
+use App\Monitoring;
 use App\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
@@ -136,7 +142,7 @@ class UserController extends Controller
                         $message['password'] = "Login failed, invalid password";
                     }
                 } else {
-                        $message['nim'] = "Login failed, invalid NIM";
+                        $message['username'] = "Login failed, invalid username";
                 }
             }
         return response()->json([
@@ -280,7 +286,13 @@ class UserController extends Controller
     {
         $isDataFound = true;
         try {
-            $data = Nutrition_record::where('id_patient','=',$id)->firstOrFail();
+            $antropometry_data = Antropometry::where('id_patient','=',$id)->firstOrFail();
+			$biochemistry_data = Biochemistry::where('id_patient','=',$id)->firstOrFail();
+			$clinic_data = Clinic::where('id_patient','=',$id)->firstOrFail();
+			$dietary_data = Dietary::where('id_patient','=',$id)->firstOrFail();
+			$diagnose_data = Diagnose::where('id_patient','=',$id)->firstOrFail();
+			$interenvention_data = Interenvention::where('id_patient','=',$id)->firstOrFail();
+			$monitoring_data = Monitoring::where('id_patient','=',$id)->firstOrFail();
         } catch (\Throwable $th) {
             $isDataFound = false;
         }
@@ -288,7 +300,13 @@ class UserController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Nutrition record found.',
-                'data' => $data
+                'antropometry_data' => $antropometry_data,
+				'biochemistry_data' => $biochemistry_data,
+				'clinic_data' => $clinic_data,
+				'dietary_data' => $dietary_data,
+				'diagnose_data' => $diagnose_data,
+				'interenvention_data' => $interenvention_data,
+				'monitoring_data' => $monitoring_data,
             ], 200);
         } else {
             return response()->json([
