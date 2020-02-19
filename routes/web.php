@@ -29,7 +29,13 @@ $router->post('/addPatient','AdminController@addPatient');
 $router->get('/getPatient/{fullname}','AdminController@getPatientByName');
 
 // //For Doctor
-$router->post('/updateNutRecord/{id}','DoctorController@updateNutritionRecord');
+$router->post('/updateAntropometry/{id}','DoctorController@updateAntropometry');
+$router->post('/updateBiochemistry/{id}','DoctorController@updateBiochemistry');
+$router->post('/updateClinic/{id}','DoctorController@updateClinic');
+$router->post('/updateDietary/{id}','DoctorController@updateDietary');
+$router->post('/updateDiagnose/{id}','DoctorController@updateDiagnose');
+$router->post('/updateInterenvention/{id}','DoctorController@updateInterenvention');
+$router->post('/updateMonitoring/{id}','DoctorController@updateMonitoring');
 $router->get('/nutRecord/{id}','DoctorController@getNutritionRecordById');
 
 // //For Articles
