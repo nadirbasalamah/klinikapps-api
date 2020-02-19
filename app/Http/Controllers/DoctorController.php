@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Patient;
-use App\Nutrition_record;
 use App\Article;
 use App\Antropometry;
 use App\Biochemistry;
