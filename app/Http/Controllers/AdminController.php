@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Patient;
+use App\Nutritionist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -236,6 +238,222 @@ class AdminController extends Controller
 			return response()->json([
 				'status' => true,
 				'message' => 'Patient data found.',
+				'data' => $data
+			], 200);
+        }
+	}
+	/**
+	 * @function getAllNutritionists()
+	 * @return mendapatkan data seluruh ahli gizi
+	 */
+	public function getAllNutritionists()
+	{
+		$nutritionists = Nutritionist::all();
+
+		if (count($nutritionists) === 0) {
+			return response()->json([
+				'status' => false,
+				'message' =>'Data not found.'
+			], 404);
+		} else {
+			return response()->json([
+				'status' => true,
+				'message' =>'Data found.',
+				'data'    => $nutritionists
+			], 200);
+		}
+	}
+	/**
+	 * @function getNutritionistById(id)
+	 * @param id ahli gizi
+	 * @return mendapatkan data ahli gizi berdasarkan id ahli gizi
+	 */
+	public function getNutritionistById($id)
+	{
+		$isDataFound = true;
+        try {
+            $data = Nutritionist::where('id','=',$id)->firstOrFail();
+        } catch (\Throwable $th) {
+            $isDataFound = false;
+        }
+        if($isDataFound) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Nutritionist data found.',
+                'data' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Nutritionist data not found.'
+            ], 404);
+        }
+	}
+	/**
+	 * @function deleteNutritionist(id)
+	 * @param id ahli gizi
+	 * @return menghapus data ahli gizi tertentu
+	 */
+	public function deleteNutritionist(Request $request, $id)
+	{
+		$isDataFound = true;
+        try {
+            $data = Nutritionist::where('id','=',$id)->firstOrFail();
+        } catch (\Throwable $th) {
+            $isDataFound = false;
+        }
+        if($isDataFound) {
+			$data->delete();
+            return response()->json([
+                'status' => true,
+                'message' => 'Nutritionist data deleted successfully.',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Nutritionist data not found.'
+            ], 404);
+        }
+	}
+	/**
+	 * @function editNutritionist(id)
+	 * @param id ahli gizi
+	 * @return menyimpan perubahan data ahli gizi
+	 */
+	public function editNutritionist(Request $request, $id)
+	{
+		$message = [];
+        $data = [];
+        $code = 400;
+        $status = false;
+            $validator = Validator::make($request->all(), [
+                'username' => 'required|regex:/^[a-z .\-]+$/i',
+                'phone_number' => 'required|regex:/^[0-9 .\-]+$/i',
+                'email' => 'required',
+                'address' => 'required'
+            ]);
+            if ($validator->fails()) {
+                $errors = $validator->errors();
+                
+                $messages = [];
+                $fields = [];
+                $i = 0;
+
+                foreach ($errors->all() as $msg) {
+                    array_push($messages,$msg);
+                    $fields[$i] = explode(" ",$messages[$i]);
+                    $message[$fields[$i][1]] = $messages[$i];
+                    $i++;
+                }
+            } else {
+                $user = Nutritionist::find($id);
+                if (!is_null($user)) {
+                    $user->username = $request->username;
+                    $user->phone_number = $request->phone_number;
+                    $user->email = $request->email;
+                    $user->address = $request->address;
+                    $user->save();
+                    
+                    $message['success'] = 'user updated!';
+                    $code = 200;
+                    $data = $user;
+                    $status = true;
+                } else {
+                    $message['error'] = "Error, user not found";
+                    $code = 404;
+                }
+            }
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+            'data' => $data
+        ], $code);
+	}
+	/**
+	 * @function addNutritionist()
+	 * @return menambahkan data ahli gizi baru
+	 */
+	public function addNutritionist(Request $request)
+	{
+		$validator = Validator::make($request->all(), [
+			'fullname' => 'required|string|regex:/^[a-z .\-]+$/i',
+			'username' => 'required|string|regex:/^[a-z .\-]+$/i',
+			'password' => 'required|string|min:6',
+			'birthdate' => 'required',
+			'gender' => 'required|string',
+			'age' => 'required|integer',
+			'phone_number' => 'required|string|regex:/^[0-9 .\-]+$/i',
+			'email' => 'required|string', 
+			'address' => 'required|string',
+			'nip' => 'required|string|regex:/^[0-9 .\-]+$/i'
+		]);
+		
+			$status = false;
+			$message = [];
+			$data = null;
+			$code = 400;
+
+			if ($validator->fails()) { 
+				$errors = $validator->errors();
+				$messages = [];
+				$fields = [];
+				$i = 0;
+				foreach ($errors->all() as $msg) {
+					array_push($messages,$msg);
+					$fields[$i] = explode(" ",$messages[$i]);
+					$message[$fields[$i][1]] = $messages[$i];
+					$i++;
+				}
+			}
+			else{
+				$user = Nutritionist::create([
+					'fullname' => $request->fullname,
+					'username' => $request->username,
+					'password' => Hash::make($request->password),
+					'birthdate' => $request->birthdate,
+					'gender' => $request->gender,
+					'age' => $request->age,
+					'phone_number' => $request->phone_number,
+					'email' => $request->email,
+					'address' => $request->address,
+					'nip' => $request->nip
+				]);
+				if($user){
+					$status = true;
+					$message['success'] = "register successfully";
+					$data = $user->toArray();
+					$code = 200;
+				}
+				else{
+					$message['username'] = 'register failed, username already exist';
+				}
+			}
+			return response()->json([
+				'status' => $status,
+				'message' => $message,
+				'data' => $data
+			], $code);
+	}
+	/**
+	 * @function getNutritionistByName(fullname)
+	 * @return menampilkan data ahli gizi berdasarkan nama ahli gizi yang dicari
+	 */
+	public function getNutritionistByName($fullname)
+	{
+		$data = Nutritionist::select('*')
+		->where('fullname','LIKE',"%".$fullname."%")
+		->orderBy('fullname', 'DESC')
+		->get();
+
+        if(count($data) === 0) {
+			return response()->json([
+				'status' => false,
+                'message' => 'Nutritionist data not found.'
+            ], 404);
+        } else {
+			return response()->json([
+				'status' => true,
+				'message' => 'Nutritionist data found.',
 				'data' => $data
 			], 200);
         }

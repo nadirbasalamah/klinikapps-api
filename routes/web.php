@@ -28,6 +28,13 @@ $router->post('/editPatient/{id}','AdminController@editPatient');
 $router->post('/addPatient','AdminController@addPatient');
 $router->get('/getPatient/{fullname}','AdminController@getPatientByName');
 
+$router->get('/nutritionists','AdminController@getAllNutritionists');
+$router->get('/nutritionist/{id}','AdminController@getNutritionistById');
+$router->post('/deleteNutritionist/{id}','AdminController@deleteNutritionist');
+$router->post('/editNutritionist/{id}','AdminController@editNutritionist');
+$router->post('/addNutritionist','AdminController@addNutritionist');
+$router->get('/getNutritionist/{fullname}','AdminController@getNutritionistByName');
+
 // //For Doctor
 $router->post('/updateAntropometry/{id}','DoctorController@updateAntropometry');
 $router->post('/updateBiochemistry/{id}','DoctorController@updateBiochemistry');
