@@ -14,6 +14,6 @@ class Patient extends Model
      */
     protected $fillable = [
         'rm_number','rmgizi_number','visitdate','referral','fullname','age','gender',
-        'address','phone_number','email','birthdate','profile_picture','education','job','religion'
+        'address','phone_number','birthdate','education','job','religion'
     ];
 }

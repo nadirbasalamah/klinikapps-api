@@ -66,9 +66,6 @@ class UserController extends Controller
             }
         }
         else{
-            if(strpos($request->fullname, 'Dr.') !== false) {
-                $role = 'doctor';
-            }
             $user = User::create([
                 'role' => $role,
                 'fullname' => $request->fullname,
@@ -81,8 +78,7 @@ class UserController extends Controller
                 'email' => $request->email,
                 'address' => $request->address,
                 'id_number' => $request->id_number,
-                'id_type' => $request->id_type,
-                'profile_picture' => "default.png"
+                'id_type' => $request->id_type
             ]);
             if($user){
                 $status = true;

@@ -160,7 +160,6 @@ class AdminController extends Controller
 			'gender' => 'required',
 			'address' => 'required', 
 			'phone_number' => 'required|string|regex:/^[0-9 .\-]+$/i',
-			'email' => 'required',
 			'birthdate' => 'required',
 			'education' => 'required',
 			'job' => 'required',
@@ -195,9 +194,7 @@ class AdminController extends Controller
 						'gender' => $request->gender,
 						'address' => $request->address,
 						'phone_number' => $request->phone_number,
-						'email' => $request->email,
 						'birthdate' => $request->birthdate,
-						'profile_picture' => 'default.png', //TODO: will be replaced with uploaded pict
 						'education' => $request->education,
 						'job' => $request->job,
 						'religion' => $request->religion
