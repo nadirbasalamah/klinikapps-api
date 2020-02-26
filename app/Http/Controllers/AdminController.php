@@ -93,7 +93,6 @@ class AdminController extends Controller
 		$validator = Validator::make($request->all(), [
 			'address' => 'required', 
 			'phone_number' => 'required|string|regex:/^[0-9 .\-]+$/i',
-			'email' => 'required',
 			'education' => 'required',
 			'job' => 'required',
 			'religion' => 'required'
@@ -121,7 +120,6 @@ class AdminController extends Controller
                 if (!is_null($patient)) {
                     $patient->address = $request->address;
                     $patient->phone_number = $request->phone_number;
-					$patient->email = $request->email;
 					$patient->education = $request->education;
 					$patient->job = $request->job;
 					$patient->religion = $request->religion;
