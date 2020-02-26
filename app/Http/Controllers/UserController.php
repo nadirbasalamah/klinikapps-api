@@ -10,6 +10,7 @@ use App\Diagnose;
 use App\Interenvention;
 use App\Monitoring;
 use App\User;
+use App\Nutritionist;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -110,6 +111,7 @@ class UserController extends Controller
         $data = null;
         $code = 401;
         $isUserFound = true;
+        $isNutritionistFound = true;
 
         if ($validator->fails()) { 
             $errors = $validator->errors();            
@@ -123,6 +125,25 @@ class UserController extends Controller
                 $i++;
             }
         } else {
+            if(strpos($request->username,"AG") !== false) {
+                try {
+                    $nutritionist = Nutritionist::where('username', '=', trim($request->username,"AG_"))->firstOrFail();
+                } catch (\Throwable $th) {
+                    $isNutritionistFound = false;
+                }
+                if ($isNutritionistFound) {
+                    if (Hash::check($request->password, $nutritionist->password)) {
+                        $status = true;
+                        $message['success'] = 'Login successfully';
+                        $data = $nutritionist->toArray();
+                        $code = 200;
+                    } else {
+                        $message['password'] = "Login failed, invalid password";
+                    }
+                } else {
+                        $message['username'] = "Login failed, invalid username";
+                }
+            } else {
                 try {
                     $user = User::where('username', '=', $request->username)->firstOrFail();
                 } catch (\Throwable $th) {
@@ -140,6 +161,75 @@ class UserController extends Controller
                 } else {
                         $message['username'] = "Login failed, invalid username";
                 }
+            }
+            }
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+            'data' => $data
+        ], $code);
+    }
+    /**
+	 * @function forgetPassword()
+	 * @return melakukan reset password pengguna
+	 */
+	public function forgetPassword(Request $request) {
+		$validator = Validator::make($request->all(), [
+            'username' => 'required', 
+            'password' => 'required', 
+        ]);
+        $status = false;
+        $message = [];
+        $data = null;
+        $code = 401;
+        $isUserFound = true;
+        $isNutritionistFound = true;
+
+        if ($validator->fails()) { 
+            $errors = $validator->errors();            
+            $messages = [];
+            $fields = [];
+            $i = 0;
+            foreach ($errors->all() as $msg) {
+                array_push($messages,$msg);
+                $fields[$i] = explode(" ",$messages[$i]);
+                $message[$fields[$i][1]] = $messages[$i];
+                $i++;
+            }
+        } else {
+            if(strpos($request->username,"AG") !== false) {
+                try {
+                    $nutritionist = Nutritionist::where('username', '=', trim($request->username,"AG_"))->firstOrFail();
+                } catch (\Throwable $th) {
+                    $isNutritionistFound = false;
+                }
+                if ($isNutritionistFound) {
+                    $nutritionist->password = Hash::make($request->password);
+                    $nutritionist->save();
+                    $message['success'] = 'nutritionist password updated!';
+                    $code = 200;
+                    $data = $nutritionist;
+                    $status = true;
+                } else {
+                        $message['username'] = "Reset password failed, invalid nutritionist username";
+                }
+            } else {
+                try {
+                    $user = User::where('username', '=', $request->username)->firstOrFail();
+                } catch (\Throwable $th) {
+                    $isUserFound = false;
+                }
+                if ($isUserFound) {
+                    $user->password = Hash::make($request->password);
+                    $user->save();
+                    $message['success'] = 'user password updated!';
+                    $code = 200;
+                    $data = $user;
+                    $status = true;
+                } else {
+                        $message['username'] = "Reset password failed, invalid username";
+                }
+            }
             }
         return response()->json([
             'status' => $status,

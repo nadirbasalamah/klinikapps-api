@@ -15,6 +15,7 @@
 $router->get('/','UserController@index');
 $router->post('/registerUser','UserController@registerUser');
 $router->post('/loginUser','UserController@loginUser');
+$router->post('/forgetPassword','UserController@forgetPassword');
 $router->post('/editProfile/{id}','UserController@editProfile');
 $router->post('/changePassword/{id}','UserController@changePassword');
 $router->get('/user/{id}','UserController@getUserById');
