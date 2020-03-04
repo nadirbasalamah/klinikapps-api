@@ -708,7 +708,7 @@ class DoctorController extends Controller
 		if($this->checkPatient($id)) {
 			$validator = Validator::make($request->all(), [
 				'mon_date' => 'required',
-				'result' => 'required'
+				'result' => 'required',
 			]);
 			if ($validator->fails()) { 
 				$errors = $validator->errors();
@@ -733,6 +733,7 @@ class DoctorController extends Controller
 				if($isDataFound) {
 					$nutRecord->mon_date = $request->mon_date;
 					$nutRecord->result = $request->result;
+					$nutRecord->return_date = $request->return_date;
 
 					$nutRecord->save();
 
@@ -745,7 +746,8 @@ class DoctorController extends Controller
 					$nutrition_record = Monitoring::create([
 						'id_patient' => $id,
 						'mon_date' => $request->mon_date,
-						'result' => $request->result
+						'result' => $request->result,
+						'return_date' => $request->return_date
 					]);
 					if($nutrition_record){
 						$status = true;

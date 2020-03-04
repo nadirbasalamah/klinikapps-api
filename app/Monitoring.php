@@ -20,6 +20,6 @@ class Monitoring extends Model
      * @var array
      */
     protected $fillable = [
-        'id_patient','mon_date','result'
+        'id_patient','mon_date','result','return_date'
     ];
 }
