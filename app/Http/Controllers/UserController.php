@@ -11,6 +11,7 @@ use App\Interenvention;
 use App\Monitoring;
 use App\User;
 use App\Nutritionist;
+use App\Patient;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -28,6 +29,17 @@ class UserController extends Controller
             'data'    => $users
         ], 200);
     }
+
+    public function checkPatient($fullname)
+	{
+		$isDataFound = true;
+        try {
+            $data = Patient::where('fullname','=',$fullname)->firstOrFail();
+        } catch (\Throwable $th) {
+            $isDataFound = false;
+		}
+		return ['status' => $isDataFound, 'id' => $data->id];
+	}
     /**
 	 * @function registerUser()
 	 * @return melakukan registrasi pengguna baru
@@ -370,34 +382,50 @@ class UserController extends Controller
 	 */
     public function getNutritionRecordById($id)
     {
+        $user = User::find($id);
+        $patient = $this->checkPatient($user->fullname);
         $isDataFound = true;
-        try {
-            $antropometry_data = Antropometry::where('id_patient','=',$id)->firstOrFail();
-			$biochemistry_data = Biochemistry::where('id_patient','=',$id)->firstOrFail();
-			$clinic_data = Clinic::where('id_patient','=',$id)->firstOrFail();
-			$dietary_data = Dietary::where('id_patient','=',$id)->firstOrFail();
-			$diagnose_data = Diagnose::where('id_patient','=',$id)->firstOrFail();
-			$interenvention_data = Interenvention::where('id_patient','=',$id)->firstOrFail();
-			$monitoring_data = Monitoring::where('id_patient','=',$id)->firstOrFail();
-        } catch (\Throwable $th) {
-            $isDataFound = false;
-        }
-        if($isDataFound) {
-            return response()->json([
-                'status' => true,
-                'message' => 'Nutrition record found.',
-                'antropometry_data' => $antropometry_data,
-				'biochemistry_data' => $biochemistry_data,
-				'clinic_data' => $clinic_data,
-				'dietary_data' => $dietary_data,
-				'diagnose_data' => $diagnose_data,
-				'interenvention_data' => $interenvention_data,
-				'monitoring_data' => $monitoring_data,
-            ], 200);
+        if(!is_null($user)) {
+            if($patient['status']) {
+                try {
+                    $antropometry_data = Antropometry::where('id_patient','=',$patient['id'])->firstOrFail();
+                    $biochemistry_data = Biochemistry::where('id_patient','=',$patient['id'])->firstOrFail();
+                    $clinic_data = Clinic::where('id_patient','=',$patient['id'])->firstOrFail();
+                    $dietary_data = Dietary::where('id_patient','=',$patient['id'])->firstOrFail();
+                    $diagnose_data = Diagnose::where('id_patient','=',$patient['id'])->firstOrFail();
+                    $interenvention_data = Interenvention::where('id_patient','=',$patient['id'])->firstOrFail();
+                    $monitoring_data = Monitoring::where('id_patient','=',$patient['id'])->firstOrFail();
+                } catch (\Throwable $th) {
+                    $isDataFound = false;
+                }
+                if($isDataFound) {
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Nutrition record found.',
+                        'antropometry_data' => $antropometry_data,
+                        'biochemistry_data' => $biochemistry_data,
+                        'clinic_data' => $clinic_data,
+                        'dietary_data' => $dietary_data,
+                        'diagnose_data' => $diagnose_data,
+                        'interenvention_data' => $interenvention_data,
+                        'monitoring_data' => $monitoring_data,
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Nutrition record not found.'
+                    ], 404);
+                }
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Patient not found.'
+                ], 404);
+            }
         } else {
             return response()->json([
                 'status' => false,
-                'message' => 'Nutrition record not found.'
+                'message' => 'User not found.'
             ], 404);
         }
     }
