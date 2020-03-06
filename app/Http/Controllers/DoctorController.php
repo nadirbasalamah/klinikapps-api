@@ -87,6 +87,51 @@ class DoctorController extends Controller
         }
 	}
 
+	public function setNutritionist(Request $request, $id)
+	{
+		$validator = Validator::make($request->all(), [
+			'id_nutritionist' => 'required'
+		]);
+			$status = false;
+			$message = [];
+			$data = null;
+			$code = 400;
+	
+			if ($validator->fails()) { 
+				$errors = $validator->errors();
+				$messages = [];
+				$fields = [];
+				$i = 0;
+				foreach ($errors->all() as $msg) {
+					array_push($messages,$msg);
+					$fields[$i] = explode(" ",$messages[$i]);
+					$message[$fields[$i][1]] = $messages[$i];
+					$i++;
+				}
+			}
+			else{
+				$patient = Patient::find($id);
+                if (!is_null($patient)) {
+                    $patient->id_nutritionist = $request->id_nutritionist;
+                    $patient->save();
+                    
+                    $message['success'] = 'patient data updated!';
+                    $code = 200;
+					$data = $patient;
+                    $status = true;
+                } else {
+                    $message['error'] = "Error, patient not found";
+                    $code = 404;
+                }
+			}
+			return response()->json([
+				'status' => $status,
+				'message' => $message,
+				'data' => $data
+			], $code);
+
+	}
+
 	/**
 	 * @function updateAntropometry(id)
 	 * @param id pasien

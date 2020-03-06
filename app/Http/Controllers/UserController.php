@@ -38,7 +38,7 @@ class UserController extends Controller
         } catch (\Throwable $th) {
             $isDataFound = false;
 		}
-		return ['status' => $isDataFound, 'id' => $data->id];
+		return ['status' => $isDataFound, 'id' => $data->id, 'nut_id' => $data->id_nutritionist];
 	}
     /**
 	 * @function registerUser()
@@ -388,6 +388,7 @@ class UserController extends Controller
         if(!is_null($user)) {
             if($patient['status']) {
                 try {
+                    $nutritionist_data = Nutritionist::where('id','=',$patient['nut_id'])->firstOrFail();
                     $antropometry_data = Antropometry::where('id_patient','=',$patient['id'])->firstOrFail();
                     $biochemistry_data = Biochemistry::where('id_patient','=',$patient['id'])->firstOrFail();
                     $clinic_data = Clinic::where('id_patient','=',$patient['id'])->firstOrFail();
@@ -402,6 +403,7 @@ class UserController extends Controller
                     return response()->json([
                         'status' => true,
                         'message' => 'Nutrition record found.',
+                        'nutritionist_data' => $nutritionist_data,
                         'antropometry_data' => $antropometry_data,
                         'biochemistry_data' => $biochemistry_data,
                         'clinic_data' => $clinic_data,

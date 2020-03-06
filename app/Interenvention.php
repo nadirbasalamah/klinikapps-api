@@ -20,7 +20,7 @@ class Interenvention extends Model
      * @var array
      */
     protected $fillable = [
-       'id_patient','energi','persen_karbohidrat','gram_karbohidrat',
+       'id_patient','energi','keterangan_inter','persen_karbohidrat','gram_karbohidrat',
         'persen_protein','gram_protein','persen_lemak','gram_lemak'
     ];
 }

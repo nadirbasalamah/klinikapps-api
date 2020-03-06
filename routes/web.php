@@ -37,6 +37,7 @@ $router->post('/addNutritionist','AdminController@addNutritionist');
 $router->get('/getNutritionist/{fullname}','AdminController@getNutritionistByName');
 
 // //For Doctor
+$router->post('/setNutritionist/{id}','DoctorController@setNutritionist');
 $router->post('/updateAntropometry/{id}','DoctorController@updateAntropometry');
 $router->post('/updateBiochemistry/{id}','DoctorController@updateBiochemistry');
 $router->post('/updateClinic/{id}','DoctorController@updateClinic');
