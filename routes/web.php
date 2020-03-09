@@ -33,6 +33,7 @@ $router->get('/nutritionists','AdminController@getAllNutritionists');
 $router->get('/nutritionist/{id}','AdminController@getNutritionistById');
 $router->post('/deleteNutritionist/{id}','AdminController@deleteNutritionist');
 $router->post('/editNutritionist/{id}','AdminController@editNutritionist');
+$router->post('/editNutPassword/{id}','AdminController@changePassword');
 $router->post('/addNutritionist','AdminController@addNutritionist');
 $router->get('/getNutritionist/{fullname}','AdminController@getNutritionistByName');
 

@@ -365,6 +365,57 @@ class AdminController extends Controller
         ], $code);
 	}
 	/**
+     * @function changePassword(id)
+     * @return menyimpan perubahan password pengguna
+     */
+	public function changePassword(Request $request, $id) {
+        $message = [];
+        $data = [];
+        $code = 400;
+        $status = false;
+            $validator = Validator::make($request->all(), [
+                'old_password' => 'required|min:6',
+                'new_password' => 'required|min:6'
+            ]);
+            if ($validator->fails()) {
+                $errors = $validator->errors();
+                
+                $messages = [];
+                $fields = [];
+                $i = 0;
+
+                foreach ($errors->all() as $msg) {
+                    array_push($messages,$msg);
+                    $fields[$i] = explode(" ",$messages[$i]);
+                    $message[$fields[$i][1]] = $messages[$i];
+                    $i++;
+                }
+            } else {
+                $user = Nutritionist::find($id);
+                if (!is_null($user)) {
+                    if (Hash::check($request->old_password, $user->password)) {
+                        $user->password = Hash::make($request->new_password);
+                        $user->save();
+                    } else {
+                        $message['password'] = "Password change failed, invalid password";
+                    }
+                    $message['success'] = 'password updated!';
+                    $code = 200;
+                    $data = $user;
+                    $status = true;
+                } else {
+                    $message['error'] = "Error, user not found";
+                    $code = 404;
+                }
+            }
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+            'data' => $data
+        ], $code);
+	}
+
+	/**
 	 * @function addNutritionist()
 	 * @return menambahkan data ahli gizi baru
 	 */
