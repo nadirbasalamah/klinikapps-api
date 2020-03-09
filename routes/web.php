@@ -48,9 +48,10 @@ $router->post('/updateMonitoring/{id}','DoctorController@updateMonitoring');
 $router->get('/nutRecord/{id}','DoctorController@getNutritionRecordById');
 
 // //For Articles
-$router->get('/articles','DoctorController@getAllArticles');
-$router->get('/guides','DoctorController@getAllGuides');
-$router->get('/article/{id}','DoctorController@getArticleById');
-$router->post('/addArticle','DoctorController@addArticle');
-$router->post('/deleteArticle/{id}','DoctorController@deleteArticle');
-$router->post('/editArticle/{id}','DoctorController@editArticle');
+$router->get('/articles','ArticleController@getAllArticles');
+$router->get('/guides','ArticleController@getAllGuides');
+$router->get('/article/{id}','ArticleController@getArticleById');
+$router->get('/getArticle/{title}','ArticleController@getArticleByTitle');
+$router->post('/addArticle','ArticleController@addArticle');
+$router->post('/deleteArticle/{id}','ArticleController@deleteArticle');
+$router->post('/editArticle/{id}','ArticleController@editArticle');
