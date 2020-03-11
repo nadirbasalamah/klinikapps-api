@@ -12,6 +12,7 @@ use App\Monitoring;
 use App\User;
 use App\Nutritionist;
 use App\Patient;
+use App\FoodMenu;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -416,6 +417,48 @@ class UserController extends Controller
                     return response()->json([
                         'status' => false,
                         'message' => 'Nutrition record not found.'
+                    ], 404);
+                }
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Patient not found.'
+                ], 404);
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+    }
+
+    /**
+	 * @function getFoodMenuById(id)
+	 * @return menampilkan data rancangan menu makanan berdasarkan id pasien
+	 */
+    public function getFoodMenuById($id)
+    {
+        $user = User::find($id);
+        $patient = $this->checkPatient($user->fullname);
+        $isDataFound = true;
+        if(!is_null($user)) {
+            if($patient['status']) {
+                try {
+                    $foodMenuData = FoodMenu::where('id_patient','=',$patient['id'])->firstOrFail();
+                } catch (\Throwable $th) {
+                    $isDataFound = false;
+                }
+                if($isDataFound) {
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Food menu found.',
+                        'data' => $foodMenuData,
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Food menu not found.'
                     ], 404);
                 }
             } else {

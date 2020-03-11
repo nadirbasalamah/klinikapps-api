@@ -20,6 +20,7 @@ $router->post('/editProfile/{id}','UserController@editProfile');
 $router->post('/changePassword/{id}','UserController@changePassword');
 $router->get('/user/{id}','UserController@getUserById');
 $router->get('/userNutRecord/{id}','UserController@getNutritionRecordById');
+$router->get('/userFoodMenu/{id}','UserController@getFoodMenuById');
 
 // //For Admin
 $router->get('/patients','AdminController@getAllPatients');
@@ -47,6 +48,9 @@ $router->post('/updateDiagnose/{id}','DoctorController@updateDiagnose');
 $router->post('/updateInterenvention/{id}','DoctorController@updateInterenvention');
 $router->post('/updateMonitoring/{id}','DoctorController@updateMonitoring');
 $router->get('/nutRecord/{id}','DoctorController@getNutritionRecordById');
+$router->get('/foodMenu/{id}','DoctorController@getFoodMenuById');
+$router->post('/addFoodMenu/{id}','DoctorController@addFoodMenu');
+$router->post('/editFoodMenu/{id}','DoctorController@editFoodMenu');
 
 // //For Articles
 $router->get('/articles','ArticleController@getAllArticles');

@@ -10,6 +10,7 @@ use App\Dietary;
 use App\Diagnose;
 use App\Interenvention;
 use App\Monitoring;
+use App\FoodMenu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -809,6 +810,147 @@ class DoctorController extends Controller
 			$message['error'] = "Error, patient data not found";
 			$code = 404;
 		}
+			return response()->json([
+				'status' => $status,
+				'message' => $message,
+				'data' => $data
+			], $code);
+	}
+	/**
+	 * @function getFoodMenuById(id)
+	 * @return menampilkan data rancangan menu makanan berdasarkan id pasien
+	 */
+	public function getFoodMenuById($id)
+	{
+		$isDataFound = true;
+        try {
+            $data = FoodMenu::where('id_patient','=',$id)->firstOrFail();
+        } catch (\Throwable $th) {
+            $isDataFound = false;
+        }
+        if($isDataFound) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Fodd menu data found.',
+                'data' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Food menu data not found.'
+            ], 404);
+        }
+	}
+	/**
+	 * @function addFoodMenu()
+	 * @return menambahkan data rancangan menu makanan
+	 */
+	public function addFoodMenu(Request $request, $id)
+	{
+		$validator = Validator::make($request->all(), [
+			'breakfast' => 'required',
+			'breakfast_time' => 'required',
+			'lunch' => 'required',
+			'lunch_time' => 'required',
+			'dinner' => 'required',
+			'dinner_time' => 'required',
+		]);
+		
+			$status = false;
+			$message = [];
+			$data = null;
+			$code = 400;
+	
+			if ($validator->fails()) { 
+				$errors = $validator->errors();
+				$messages = [];
+				$fields = [];
+				$i = 0;
+				foreach ($errors->all() as $msg) {
+					array_push($messages,$msg);
+					$fields[$i] = explode(" ",$messages[$i]);
+					$message[$fields[$i][1]] = $messages[$i];
+					$i++;
+				}
+			}
+			else{
+				$article = FoodMenu::create([
+					'id_patient' => $id,
+					'breakfast' => $request->breakfast,
+					'breakfast_time' => $request->breakfast_time,
+					'lunch' => $request->lunch,
+					'lunch_time' => $request->lunch_time,
+					'dinner' => $request->dinner,
+					'dinner_time' => $request->dinner_time,
+				]);
+				if($article){
+					$status = true;
+					$message['success'] = "food menu added successfully";
+					$data = $article->toArray();
+					$code = 200;
+				}
+				else{
+					$message['error'] = 'food menu failed to add';
+				}
+			}
+			return response()->json([
+				'status' => $status,
+				'message' => $message,
+				'data' => $data
+			], $code);
+	}
+	/**
+	 * @function editFoodMenu(id)
+	 * @return mengubah data menu makanan
+	 */
+	public function editFoodMenu(Request $request, $id)
+	{
+		$validator = Validator::make($request->all(), [
+			'breakfast' => 'required',
+			'breakfast_time' => 'required',
+			'lunch' => 'required',
+			'lunch_time' => 'required',
+			'dinner' => 'required',
+			'dinner_time' => 'required',
+		]);
+		
+			$status = false;
+			$message = [];
+			$data = null;
+			$code = 400;
+	
+			if ($validator->fails()) { 
+				$errors = $validator->errors();
+				$messages = [];
+				$fields = [];
+				$i = 0;
+				foreach ($errors->all() as $msg) {
+					array_push($messages,$msg);
+					$fields[$i] = explode(" ",$messages[$i]);
+					$message[$fields[$i][1]] = $messages[$i];
+					$i++;
+				}
+			}
+			else{
+				$foodMenu = FoodMenu::find($id);
+                if (!is_null($foodMenu)) {
+                    $foodMenu->breakfast = $request->breakfast;
+					$foodMenu->breakfast_time = $request->breakfast_time;
+					$foodMenu->lunch = $request->lunch;
+					$foodMenu->lunch_time = $request->lunch_time;
+					$foodMenu->dinner = $request->dinner;
+					$foodMenu->dinner_time = $request->dinner_time;
+                    $foodMenu->save();
+                    
+                    $message['success'] = 'food menu updated!';
+                    $code = 200;
+					$data = $foodMenu;
+                    $status = true;
+                } else {
+                    $message['error'] = "Error, food menu not found";
+                    $code = 404;
+                }
+			}
 			return response()->json([
 				'status' => $status,
 				'message' => $message,
