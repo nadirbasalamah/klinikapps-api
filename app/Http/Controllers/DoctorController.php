@@ -932,7 +932,7 @@ class DoctorController extends Controller
 				}
 			}
 			else{
-				$foodMenu = FoodMenu::find($id);
+				$foodMenu = FoodMenu::where('id_patient','=',$id)->firstOrFail();
                 if (!is_null($foodMenu)) {
                     $foodMenu->breakfast = $request->breakfast;
 					$foodMenu->breakfast_time = $request->breakfast_time;
