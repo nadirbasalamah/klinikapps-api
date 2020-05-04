@@ -334,13 +334,13 @@ class UserController extends Controller
                     if (Hash::check($request->old_password, $user->password)) {
                         $user->password = Hash::make($request->new_password);
                         $user->save();
+                        $status = true;
+                        $code = 200;
+                        $data = $user;
+                        $message['success'] = 'password updated!';
                     } else {
                         $message['password'] = "Login failed, invalid password";
                     }
-                    $message['success'] = 'password updated!';
-                    $code = 200;
-                    $data = $user;
-                    $status = true;
                 } else {
                     $message['error'] = "Error, user not found";
                     $code = 404;
