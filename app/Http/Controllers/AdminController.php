@@ -143,6 +143,56 @@ class AdminController extends Controller
 
 	}
 	/**
+	 * @function registerPatient(id)
+	 * @param id pasien
+	 * @return melakukan pendaftaran pasien
+	 */
+	public function registerPatient(Request $request, $id)
+	{
+		$validator = Validator::make($request->all(), [
+			'visitdate' => 'required'
+		]);
+		
+			$status = false;
+			$message = [];
+			$data = null;
+			$code = 400;
+	
+			if ($validator->fails()) { 
+				$errors = $validator->errors();
+				$messages = [];
+				$fields = [];
+				$i = 0;
+				foreach ($errors->all() as $msg) {
+					array_push($messages,$msg);
+					$fields[$i] = explode(" ",$messages[$i]);
+					$message[$fields[$i][1]] = $messages[$i];
+					$i++;
+				}
+			}
+			else{
+				$patient = Patient::find($id);
+                if (!is_null($patient)) {
+                    $patient->visitdate = $request->visitdate;
+                    $patient->save();
+                    
+                    $message['success'] = 'patient data registered!';
+                    $code = 200;
+					$data = $patient;
+                    $status = true;
+                } else {
+                    $message['error'] = "Error, patient not found";
+                    $code = 404;
+                }
+			}
+			return response()->json([
+				'status' => $status,
+				'message' => $message,
+				'data' => $data
+			], $code);
+
+	}
+	/**
 	 * @function addPatient()
 	 * @return menambahkan data pasien baru
 	 */
@@ -221,6 +271,30 @@ class AdminController extends Controller
 	{
 		$data = Patient::select('*')
 		->where('fullname','LIKE',"%".$fullname."%")
+		->orderBy('fullname', 'DESC')
+		->get();
+
+        if(count($data) === 0) {
+			return response()->json([
+				'status' => false,
+                'message' => 'Patient data not found.'
+            ], 404);
+        } else {
+			return response()->json([
+				'status' => true,
+				'message' => 'Patient data found.',
+				'data' => $data
+			], 200);
+        }
+	}
+	/**
+	 * @function getPatientByVisitdate(visitdate)
+	 * @return menampilkan data pasien berdasarkan tanggal kunjungan
+	 */
+	public function getPatientByVisitDate($visitdate)
+	{
+		$data = Patient::select('*')
+		->where('visitdate','=',$visitdate)
 		->orderBy('fullname', 'DESC')
 		->get();
 

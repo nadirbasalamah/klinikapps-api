@@ -26,9 +26,11 @@ $router->get('/userFoodMenu/{id}','UserController@getFoodMenuById');
 $router->get('/patients','AdminController@getAllPatients');
 $router->get('/patient/{id}','AdminController@getPatientById');
 $router->post('/deletePatient/{id}','AdminController@deletePatient');
+$router->post('/registerPatient/{id}','AdminController@registerPatient');
 $router->post('/editPatient/{id}','AdminController@editPatient');
 $router->post('/addPatient','AdminController@addPatient');
 $router->get('/getPatient/{fullname}','AdminController@getPatientByName');
+$router->get('/getPatientByVisitDate/{visitdate}','AdminController@getPatientByVisitDate');
 
 $router->get('/nutritionists','AdminController@getAllNutritionists');
 $router->get('/nutritionist/{id}','AdminController@getNutritionistById');
